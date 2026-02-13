@@ -1,100 +1,51 @@
 ---
 name: bug-triage
-description: "Triage bugs from Slack messages into Jira tickets with severity classification and structured details"
+description: "Triage bugs from Slack messages into Jira tickets with severity classification"
 metadata: { "openclaw": { "emoji": "\U0001F41B", "requires": { "config": ["channels.slack"] } } }
 ---
 
 # Bug Triage
 
-Triage bug reports from Slack conversations into structured Jira tickets. Extract details, classify severity, create the ticket, and reply in the Slack thread with the Jira link.
+You triage bug reports from Slack into Jira tickets. Be fast and decisive — do NOT ask clarifying questions. Work with what you have.
 
-## Prerequisites
+## Process (exactly 2 tool calls)
 
-The Jira extension must be configured with valid credentials. Set these environment variables or configure via the plugin config:
-
-- `JIRA_BASE_URL` — Your Jira Cloud URL (e.g. `https://your-domain.atlassian.net`)
-- `JIRA_EMAIL` — Email for your Jira account
-- `JIRA_API_TOKEN` — API token from https://id.atlassian.com/manage/api-tokens
-- `JIRA_PROJECT_KEY` — Default project key (e.g. `PROJ`)
-
-## Triage Process
-
-When a user reports a bug (via message, emoji reaction, or explicit request):
-
-1. **Extract details** from the message and thread context:
-   - Title (concise summary)
-   - Steps to reproduce
-   - Expected vs actual behavior
-   - Environment (browser, OS, device if mentioned)
-   - Screenshots or error messages if provided
-
-2. **Check for duplicates** before creating:
+**Step 1 — Search for duplicates:**
 
 ```json
 {
   "action": "search",
-  "jql": "project = PROJ AND type = Bug AND summary ~ \"keyword\" AND status != Done ORDER BY created DESC",
+  "jql": "project = PROJ AND type = Bug AND summary ~ \"keyword\" AND status != Done",
   "maxResults": 5
 }
 ```
 
-3. **Classify severity** using the priority guide below.
+If a duplicate exists, reply with a link to the existing ticket and stop.
 
-4. **Create the Jira ticket**:
+**Step 2 — Create the ticket:**
 
 ```json
 {
   "action": "create",
-  "summary": "Login timeout on mobile Safari after password entry",
-  "description": "**Reported by:** @username in #bugs\n**Environment:** iOS 18, Safari\n\n**Steps to reproduce:**\n1. Open login page on iPhone\n2. Enter valid credentials\n3. Tap Sign In\n\n**Expected:** Redirect to dashboard\n**Actual:** Page hangs with spinner for 30+ seconds, then times out\n\n**Error:** Console shows `net::ERR_CONNECTION_TIMED_OUT`",
+  "summary": "<concise title>",
+  "description": "**Reported by:** <sender> in <channel>\n\n**What happened:** <actual behavior>\n**Expected:** <expected behavior>\n**Steps:** <if provided>\n**Environment:** <if mentioned>",
   "issueType": "Bug",
-  "priority": "High",
-  "labels": ["mobile", "auth", "slack-triage"]
+  "priority": "<P1-P4 from guide below>",
+  "labels": ["slack-triage"]
 }
 ```
 
-5. **Reply in the Slack thread** with the result:
-
-> Bug filed: **PROJ-123** — Login timeout on mobile Safari after password entry
-> Priority: High | Type: Bug | [View in Jira](https://your-domain.atlassian.net/browse/PROJ-123)
+Then reply: `Bug filed: **PROJ-123** — <summary> | Priority: <priority> | [View in Jira](<url>)`
 
 ## Priority Guide
 
-| Priority         | Criteria                                                            | Examples                                             |
-| ---------------- | ------------------------------------------------------------------- | ---------------------------------------------------- |
-| **Highest** (P1) | Service down, data loss, security vulnerability, all users affected | Production outage, payment failures, auth bypass     |
-| **High** (P2)    | Major feature broken, no workaround, many users affected            | Cannot create accounts, search returns wrong results |
-| **Medium** (P3)  | Feature partially broken, workaround exists, some users affected    | Slow page load, formatting issues, minor UI glitch   |
-| **Low** (P4)     | Cosmetic issue, edge case, minimal user impact                      | Typo in UI, alignment off by 1px, rare edge case     |
+- **Highest** (P1): Service down, data loss, security issue, all users affected
+- **High** (P2): Major feature broken, no workaround, many users affected
+- **Medium** (P3): Feature partially broken, workaround exists
+- **Low** (P4): Cosmetic, edge case, minimal impact
 
-## Tool Actions Reference
+## Rules
 
-**Search for existing issues:**
-
-```json
-{
-  "action": "search",
-  "jql": "project = PROJ AND type = Bug AND status = Open ORDER BY priority DESC",
-  "maxResults": 10
-}
-```
-
-**Update an issue (add details, change priority):**
-
-```json
-{ "action": "update", "issueKey": "PROJ-123", "priority": "Highest", "labels": ["escalated", "p1"] }
-```
-
-**Transition an issue (change status):**
-
-```json
-{ "action": "transition", "issueKey": "PROJ-123", "transitionName": "In Progress" }
-```
-
-## Tips
-
-- Always add the `slack-triage` label so triaged bugs are trackable.
-- Include the Slack reporter's name and channel in the description for traceability.
-- If the bug report is vague, ask clarifying questions in the thread before creating the ticket.
-- When a duplicate is found, link to the existing ticket instead of creating a new one.
-- Use `search` before `create` to avoid duplicate tickets.
+- Always include the `slack-triage` label.
+- Extract what you can from the message — do not ask for more details.
+- If the report is just one sentence, still create the ticket with what you have.
