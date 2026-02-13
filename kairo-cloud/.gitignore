@@ -3,3 +3,8 @@ node_modules/
 .env
 .env.local
 drizzle/
+local.db
+next-env.d.ts
+
+# clerk configuration (can include secrets)
+/.clerk/
