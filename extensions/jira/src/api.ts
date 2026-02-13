@@ -164,6 +164,17 @@ export class JiraClient {
     );
   }
 
+  async addComment(issueKey: string, body: string, signal?: AbortSignal): Promise<void> {
+    await this.request<unknown>(
+      `/issue/${encodeURIComponent(issueKey)}/comment`,
+      {
+        method: "POST",
+        body: JSON.stringify({ body: textToAdf(body) }),
+      },
+      signal,
+    );
+  }
+
   /** Build the browser URL for an issue (for linking in Slack responses). */
   issueUrl(issueKey: string): string {
     return `${this.baseUrl}/browse/${issueKey}`;

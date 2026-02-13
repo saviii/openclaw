@@ -165,11 +165,16 @@ export function createJiraExecutor(client: JiraClient, defaults: DefaultConfig) 
 
           await client.updateIssue(params.issueKey, fields, signal);
 
+          if (params.comment) {
+            await client.addComment(params.issueKey, params.comment, signal);
+          }
+
           return json({
             success: true,
             key: params.issueKey,
             url: client.issueUrl(params.issueKey),
             updated: Object.keys(fields),
+            ...(params.comment && { commented: true }),
           });
         }
 
@@ -198,11 +203,16 @@ export function createJiraExecutor(client: JiraClient, defaults: DefaultConfig) 
 
           await client.transitionIssue(params.issueKey, target.id, signal);
 
+          if (params.comment) {
+            await client.addComment(params.issueKey, params.comment, signal);
+          }
+
           return json({
             success: true,
             key: params.issueKey,
             url: client.issueUrl(params.issueKey),
             transitioned: { from: params.transitionName, toStatus: target.to.name },
+            ...(params.comment && { commented: true }),
           });
         }
 
