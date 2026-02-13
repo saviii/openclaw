@@ -9,7 +9,6 @@
       "apiToken": { "type": "string" },
       "projectKey": { "type": "string" },
       "defaultIssueType": { "type": "string" }
-    },
-    "required": ["baseUrl", "email", "apiToken"]
+    }
   }
 }
