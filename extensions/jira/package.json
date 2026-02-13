@@ -8,7 +8,7 @@
     "@sinclair/typebox": "0.34.48"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "kairo": "workspace:*"
   },
   "openclaw": {
     "extensions": [
