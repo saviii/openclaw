@@ -9,14 +9,22 @@ Kairo is an AI-powered product management co-pilot built on the OpenClaw platfor
 - **Memory**: Remembers project context, stakeholder preferences, and past decisions
 - **Extensible**: Built on a plugin architecture — add new integrations as needed
 
-## Prerequisites
+## Cloud Hosted (Recommended)
+
+The fastest way to get started is via the cloud-hosted control plane (`kairo-cloud/`). PMs sign up, connect Slack and Jira through a guided wizard, and get a dedicated Kairo instance running on Railway — zero CLI, zero config files.
+
+See [`kairo-cloud/`](./kairo-cloud/) for setup instructions.
+
+## Self-Hosting
+
+### Prerequisites
 
 - Node.js 22.12+
 - pnpm 10+
 - A Jira Cloud instance with API access
 - A Slack workspace (for Slack integration)
 
-## Quick Start
+## Quick Start (Self-Hosted)
 
 ### 1. Install Dependencies
 
@@ -75,6 +83,9 @@ kairo/
 │   └── memory-lancedb/   # Long-term vector memory
 ├── skills/
 │   └── bug-triage/        # Bug triage workflow (Slack → Jira)
+├── kairo-cloud/           # Cloud control plane (Next.js — signup, OAuth, provisioning)
+├── scripts/
+│   └── start-cloud.sh     # Cloud container startup script
 ├── src/                   # Core platform
 ├── ui/                    # Web dashboard
 └── kairo.mjs             # CLI entry point
