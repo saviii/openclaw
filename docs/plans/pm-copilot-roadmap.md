@@ -25,17 +25,21 @@ This roadmap is designed for a **one-person company**. Each milestone is:
 **Priority**: 🔴 Critical - Do First
 **Effort**: 2-3 weeks
 **Goal**: Working bug triage from Slack to Jira
+**Status**: 🟡 In Progress — Jira extension and bug-triage skill complete, fork/cleanup remaining
 
 ### Tasks
 
 - [ ] Fork OpenClaw repository
 - [ ] Rename project (package.json, CLI, branding)
-- [ ] Remove unused extensions (keep: slack, memory-lancedb)
-- [ ] Remove unused skills (audit 54 → keep ~10)
+- [ ] Remove unused extensions (keep: slack, memory-lancedb, jira)
+- [ ] Remove unused skills (audit 54 → keep ~10 + bug-triage)
 - [x] Create `/extensions/jira/` with basic API client
 - [x] Implement 4 Jira tools: create, search, update, transition issue
+- [x] Implement comment support on update and transition actions
 - [x] Create `/skills/bug-triage/` skill
-- [x] Test end-to-end: Jira API verified (create, search, update, transition)
+- [x] Test end-to-end: Jira API verified (create, search, update, transition, comment)
+- [x] Add unit tests (28 tests: api.test.ts + tool.test.ts)
+- [ ] Test end-to-end: Slack message → Jira ticket (requires Slack channel configured)
 - [ ] Write basic README for self-hosting
 
 ### Done When
@@ -44,19 +48,40 @@ This roadmap is designed for a **one-person company**. Each milestone is:
 ✅ Bot responds in Slack thread with Jira link
 ✅ Can self-host via `docker compose up`
 
-### Key Files to Create/Modify
+### What Was Built (completed)
 
 ```
 extensions/jira/
-  ├── index.ts           # Plugin entry
-  ├── api.ts             # Jira REST client
-  ├── types.ts           # TypeScript types
-  └── EXTENSION.yaml     # Metadata
+  ├── package.json             # @openclaw/jira workspace package
+  ├── openclaw.plugin.json     # Plugin manifest (env-only config supported)
+  ├── index.ts                 # Plugin entry: config parsing, env var fallback, tool registration
+  └── src/
+      ├── types.ts             # JiraConfig, JiraIssue, JiraSearchResult, JiraTransition, etc.
+      ├── api.ts               # JiraClient: REST API v3, Basic Auth, ADF conversion, /search/jql
+      ├── api.test.ts          # 14 unit tests (auth, CRUD, error handling)
+      ├── tool.ts              # Single tool with action enum (create/search/update/transition)
+      └── tool.test.ts         # 14 unit tests (validation, defaults, comment wiring, transitions)
 
 skills/bug-triage/
-  ├── index.ts           # Skill entry
-  └── SKILL.md           # Documentation
+  └── SKILL.md                 # Triage process, priority guide (P1-P4), tool examples, Slack template
 ```
+
+**Key implementation notes for the next engineer:**
+
+- Uses Jira Cloud REST API v3 with the new `/search/jql` endpoint (old `/search` was removed by Atlassian in 2025)
+- Description fields use Atlassian Document Format (ADF) — `textToAdf()` helper in api.ts
+- Config resolves from `pluginConfig` first, then falls back to env vars: `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN`, `JIRA_PROJECT_KEY`, `JIRA_DEFAULT_ISSUE_TYPE`
+- The `openclaw.plugin.json` has no `required` array — validation is handled in `jiraConfigSchema.parse()` to allow env-only config
+- Transition matching is case-insensitive; returns available transitions if no match found
+- Tested against a live Jira Cloud instance (savipablas.atlassian.net, project SCRUM)
+
+### What Remains (for next engineer)
+
+1. **Fork & rename** — Fork the repo, update package.json name/branding, CLI help text
+2. **Extension cleanup** — Remove unused extensions (keep: slack, memory-lancedb, jira)
+3. **Skill cleanup** — Audit 54 skills, keep ~10 relevant ones + bug-triage
+4. **Slack integration test** — Configure Slack channel and test full Slack→Jira flow
+5. **Self-hosting README** — Docker compose setup, env var documentation
 
 ---
 
