@@ -40,7 +40,7 @@ describe("textToAdf", () => {
 
 describe("JiraClient", () => {
   it("sends Basic Auth header", async () => {
-    mockFetch(200, { issues: [], isLast: true });
+    mockFetch(200, { issues: [], total: 0, startAt: 0, isLast: true });
     await client.searchIssues("project = TEST");
 
     const fetchMock = vi.mocked(globalThis.fetch);
@@ -84,7 +84,7 @@ describe("JiraClient", () => {
 
   describe("searchIssues", () => {
     it("uses /search/jql endpoint", async () => {
-      mockFetch(200, { issues: [], isLast: true });
+      mockFetch(200, { issues: [], total: 0, startAt: 0, isLast: true });
       await client.searchIssues("project = TEST");
       const fetchMock = vi.mocked(globalThis.fetch);
       const [url] = fetchMock.mock.calls[0];
@@ -98,11 +98,27 @@ describe("JiraClient", () => {
           { key: "TEST-1", id: "1", self: "", fields: { summary: "Bug" } },
           { key: "TEST-2", id: "2", self: "", fields: { summary: "Feature" } },
         ],
+        total: 2,
+        startAt: 0,
         isLast: true,
       });
       const result = await client.searchIssues("project = TEST");
       expect(result.issues).toHaveLength(2);
       expect(result.total).toBe(2);
+      expect(result.startAt).toBe(0);
+    });
+
+    it("preserves server total when it exceeds page size", async () => {
+      mockFetch(200, {
+        issues: [{ key: "TEST-1", id: "1", self: "", fields: { summary: "Bug" } }],
+        total: 42,
+        startAt: 0,
+        isLast: false,
+      });
+      const result = await client.searchIssues("project = TEST", 1);
+      expect(result.issues).toHaveLength(1);
+      expect(result.total).toBe(42);
+      expect(result.maxResults).toBe(1);
     });
   });
 

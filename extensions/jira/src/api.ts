@@ -108,16 +108,17 @@ export class JiraClient {
         "summary,status,priority,issuetype,assignee,reporter,created,updated,labels,project,description",
     });
     // Use /search/jql endpoint (the old /search was removed in 2025)
-    const result = await this.request<{ issues: JiraIssue[]; isLast?: boolean }>(
-      `/search/jql?${params.toString()}`,
-      {},
-      signal,
-    );
+    const result = await this.request<{
+      issues: JiraIssue[];
+      total: number;
+      startAt: number;
+      isLast?: boolean;
+    }>(`/search/jql?${params.toString()}`, {}, signal);
     return {
       issues: result.issues,
-      total: result.issues.length,
+      total: result.total,
       maxResults,
-      startAt: 0,
+      startAt: result.startAt,
     };
   }
 
