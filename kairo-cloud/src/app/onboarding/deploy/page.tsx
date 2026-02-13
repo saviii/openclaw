@@ -63,7 +63,7 @@ export default function DeployPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="max-w-md w-full text-center">
-        <div className="text-sm text-gray-500 mb-2">Step 3 of 3</div>
+        <div className="text-sm text-gray-500 mb-2">Step 4 of 4</div>
         <h1 className="text-3xl font-bold">Deploying Kairo</h1>
 
         {status === "provisioning" && (

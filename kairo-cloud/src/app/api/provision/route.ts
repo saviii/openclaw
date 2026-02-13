@@ -36,14 +36,25 @@ export async function POST() {
     .where(and(eq(integrations.userId, userId), eq(integrations.type, "jira")))
     .get();
 
-  if (!slackIntegration || !jiraIntegration) {
-    return NextResponse.json({ error: "Please connect Slack and Jira first" }, { status: 400 });
+  const githubIntegration = await db
+    .select()
+    .from(integrations)
+    .where(and(eq(integrations.userId, userId), eq(integrations.type, "github")))
+    .get();
+
+  if (!slackIntegration || !jiraIntegration || !githubIntegration) {
+    return NextResponse.json(
+      { error: "Please connect Slack, Jira, and GitHub first" },
+      { status: 400 },
+    );
   }
 
   // Decrypt credentials
   const slackCreds = JSON.parse(decrypt(slackIntegration.credentialsEncrypted));
   const jiraCreds = JSON.parse(decrypt(jiraIntegration.credentialsEncrypted));
   const jiraMeta = JSON.parse(jiraIntegration.metadata || "{}");
+  const githubCreds = JSON.parse(decrypt(githubIntegration.credentialsEncrypted));
+  const githubMeta = JSON.parse(githubIntegration.metadata || "{}");
 
   const gatewayToken = randomBytes(32).toString("hex");
   const serviceName = `kairo-${userId.slice(0, 12).toLowerCase()}`;
@@ -61,6 +72,9 @@ export async function POST() {
       JIRA_API_TOKEN: jiraCreds.apiToken,
       JIRA_PROJECT_KEY: jiraMeta.projectKey,
       JIRA_DEFAULT_ISSUE_TYPE: jiraMeta.defaultIssueType || "Bug",
+      GITHUB_TOKEN: githubCreds.token,
+      GITHUB_OWNER: githubMeta.owner,
+      GITHUB_REPO: githubMeta.repo,
       OPENCLAW_GATEWAY_TOKEN: gatewayToken,
       OPENCLAW_GATEWAY_PORT: "3000",
       OPENCLAW_STATE_DIR: "/home/node/.openclaw",

@@ -1,0 +1,18 @@
+{
+  "name": "@openclaw/github",
+  "version": "2026.2.9",
+  "private": true,
+  "description": "OpenClaw GitHub integration plugin",
+  "type": "module",
+  "dependencies": {
+    "@sinclair/typebox": "0.34.48"
+  },
+  "devDependencies": {
+    "kairo": "workspace:*"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

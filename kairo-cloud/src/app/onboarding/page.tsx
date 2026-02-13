@@ -23,6 +23,12 @@ export default async function OnboardingPage() {
     .where(and(eq(integrations.userId, user.id), eq(integrations.type, "jira")))
     .get();
 
+  const githubIntegration = await db
+    .select()
+    .from(integrations)
+    .where(and(eq(integrations.userId, user.id), eq(integrations.type, "github")))
+    .get();
+
   const instance = await db.select().from(instances).where(eq(instances.userId, user.id)).get();
 
   // Route to the right step
@@ -31,6 +37,9 @@ export default async function OnboardingPage() {
   }
   if (!jiraIntegration) {
     redirect("/onboarding/jira");
+  }
+  if (!githubIntegration) {
+    redirect("/onboarding/github");
   }
   if (!instance) {
     redirect("/onboarding/deploy");

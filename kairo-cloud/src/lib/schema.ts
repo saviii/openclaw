@@ -13,7 +13,7 @@ export const integrations = sqliteTable("integrations", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  type: text("type", { enum: ["slack", "jira"] }).notNull(),
+  type: text("type", { enum: ["slack", "jira", "github"] }).notNull(),
   credentialsEncrypted: text("credentials_encrypted").notNull(),
   metadata: text("metadata"), // JSON string for extra info (team name, site URL, etc.)
   installedAt: text("installed_at").default(sql`(datetime('now'))`),

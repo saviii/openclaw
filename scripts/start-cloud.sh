@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Cloud startup script for Kairo SaaS containers.
-# Writes a minimal config enabling Slack + Jira plugins, then starts the gateway.
+# Writes a minimal config enabling Slack + Jira + GitHub plugins, then starts the gateway.
 
 set -euo pipefail
 
@@ -10,7 +10,7 @@ PORT="${OPENCLAW_GATEWAY_PORT:-3000}"
 mkdir -p "$STATE_DIR"
 
 # Write config only if one doesn't already exist.
-# Explicitly enable the Slack channel plugin and Jira tool plugin.
+# Explicitly enable the Slack channel plugin, Jira tool plugin, and GitHub tool plugin.
 # Skills (like bug-triage) are bundled and discovered automatically.
 if [ ! -f "$STATE_DIR/openclaw.json" ]; then
   cat > "$STATE_DIR/openclaw.json" <<'EOF'
@@ -18,7 +18,8 @@ if [ ! -f "$STATE_DIR/openclaw.json" ]; then
   "plugins": {
     "entries": {
       "slack": { "enabled": true },
-      "jira": { "enabled": true }
+      "jira": { "enabled": true },
+      "github": { "enabled": true }
     }
   }
 }

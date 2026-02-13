@@ -42,6 +42,13 @@ export default async function SettingsPage() {
               <div className="font-medium">Jira</div>
               <div className="text-sm text-gray-500">Update credentials or change project</div>
             </Link>
+            <Link
+              href="/settings/github"
+              className="block rounded-lg border px-4 py-3 hover:bg-gray-50"
+            >
+              <div className="font-medium">GitHub</div>
+              <div className="text-sm text-gray-500">Update token or change repository</div>
+            </Link>
           </div>
         </div>
 

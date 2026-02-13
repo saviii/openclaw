@@ -14,7 +14,7 @@ export default function SlackOnboardingPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="max-w-md w-full">
-        <div className="text-sm text-gray-500 mb-2">Step 1 of 3</div>
+        <div className="text-sm text-gray-500 mb-2">Step 1 of 4</div>
         <h1 className="text-3xl font-bold">Connect Slack</h1>
         <p className="mt-3 text-gray-600">
           Kairo lives in your Slack workspace. When someone reports a bug, Kairo automatically

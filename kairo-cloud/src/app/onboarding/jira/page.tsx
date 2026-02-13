@@ -32,7 +32,7 @@ export default function JiraOnboardingPage() {
         return;
       }
 
-      router.push("/onboarding/deploy");
+      router.push("/onboarding/github");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -43,7 +43,7 @@ export default function JiraOnboardingPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="max-w-md w-full">
-        <div className="text-sm text-gray-500 mb-2">Step 2 of 3</div>
+        <div className="text-sm text-gray-500 mb-2">Step 2 of 4</div>
         <h1 className="text-3xl font-bold">Connect Jira</h1>
         <p className="mt-3 text-gray-600">
           Kairo creates Jira tickets when bugs are reported in Slack. You'll need an API token from
