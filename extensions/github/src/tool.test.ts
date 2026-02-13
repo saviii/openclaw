@@ -214,6 +214,108 @@ describe("list_branches action", () => {
   });
 });
 
+describe("list_contents action", () => {
+  it("lists root directory by default", async () => {
+    mockFetch(200, [
+      {
+        name: "README.md",
+        path: "README.md",
+        sha: "abc123",
+        size: 1024,
+        type: "file",
+        html_url: "https://github.com/test-org/test-repo/blob/main/README.md",
+        download_url: "https://raw.githubusercontent.com/test-org/test-repo/main/README.md",
+      },
+      {
+        name: "docs",
+        path: "docs",
+        sha: "def456",
+        size: 0,
+        type: "dir",
+        html_url: "https://github.com/test-org/test-repo/tree/main/docs",
+        download_url: null,
+      },
+    ]);
+    const execute = makeExecutor();
+    const result = await execute("id", { action: "list_contents" } as never);
+    const parsed = parseResult(result);
+    expect(parsed.contents).toHaveLength(2);
+    expect(parsed.contents[0].name).toBe("README.md");
+    expect(parsed.contents[0].type).toBe("file");
+    expect(parsed.contents[1].name).toBe("docs");
+    expect(parsed.contents[1].type).toBe("dir");
+    expect(parsed.path).toBe("/");
+  });
+
+  it("lists a subdirectory", async () => {
+    mockFetch(200, [
+      {
+        name: "plan.md",
+        path: "docs/plan.md",
+        sha: "abc123",
+        size: 2048,
+        type: "file",
+        html_url: "https://github.com/test-org/test-repo/blob/main/docs/plan.md",
+        download_url: null,
+      },
+    ]);
+    const execute = makeExecutor();
+    const result = await execute("id", { action: "list_contents", path: "docs" } as never);
+    const parsed = parseResult(result);
+    expect(parsed.contents).toHaveLength(1);
+    expect(parsed.contents[0].path).toBe("docs/plan.md");
+    const fetchCall = vi.mocked(globalThis.fetch).mock.calls[0];
+    expect(fetchCall[0]).toContain("/contents/docs");
+  });
+});
+
+describe("get_file action", () => {
+  it("requires path", async () => {
+    const execute = makeExecutor();
+    const result = await execute("id", { action: "get_file" } as never);
+    expect(parseResult(result).error).toContain("path is required");
+  });
+
+  it("reads and decodes file content", async () => {
+    const content = Buffer.from("# My Project Plan\n\nStep 1: Build it").toString("base64");
+    mockFetch(200, {
+      name: "plan.md",
+      path: "docs/plan.md",
+      sha: "abc123",
+      size: 36,
+      type: "file",
+      content,
+      encoding: "base64",
+      html_url: "https://github.com/test-org/test-repo/blob/main/docs/plan.md",
+    });
+    const execute = makeExecutor();
+    const result = await execute("id", { action: "get_file", path: "docs/plan.md" } as never);
+    const parsed = parseResult(result);
+    expect(parsed.content).toContain("# My Project Plan");
+    expect(parsed.content).toContain("Step 1: Build it");
+    expect(parsed.path).toBe("docs/plan.md");
+    expect(parsed.truncated).toBe(false);
+  });
+
+  it("passes ref parameter", async () => {
+    const content = Buffer.from("hello").toString("base64");
+    mockFetch(200, {
+      name: "file.txt",
+      path: "file.txt",
+      sha: "abc",
+      size: 5,
+      type: "file",
+      content,
+      encoding: "base64",
+      html_url: "https://github.com/test-org/test-repo/blob/dev/file.txt",
+    });
+    const execute = makeExecutor();
+    await execute("id", { action: "get_file", path: "file.txt", ref: "dev" } as never);
+    const fetchCall = vi.mocked(globalThis.fetch).mock.calls[0];
+    expect(fetchCall[0]).toContain("?ref=dev");
+  });
+});
+
 describe("error handling", () => {
   it("returns API errors as JSON", async () => {
     mockFetch(404, { message: "Not Found" });

@@ -63,3 +63,24 @@ export type GitHubSearchResult<T> = {
   incomplete_results: boolean;
   items: T[];
 };
+
+export type GitHubContentItem = {
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  type: "file" | "dir" | "symlink" | "submodule";
+  html_url: string;
+  download_url: string | null;
+};
+
+export type GitHubFileContent = {
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  type: "file";
+  content: string;
+  encoding: string;
+  html_url: string;
+};

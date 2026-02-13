@@ -224,8 +224,12 @@ export function createJiraExecutor(client: JiraClient, defaults: DefaultConfig) 
         }
       }
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const details =
+        err instanceof Error && "errors" in err ? (err as { errors?: unknown }).errors : undefined;
       return json({
-        error: err instanceof Error ? err.message : String(err),
+        error: message,
+        ...(details && { details }),
       });
     }
   };

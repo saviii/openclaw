@@ -100,12 +100,20 @@ const plugin = {
       defaultIssueType: cfg.defaultIssueType,
     });
 
+    const projectHint = cfg.projectKey ? ` Default project: ${cfg.projectKey}.` : "";
+    const issueTypeHint = cfg.defaultIssueType
+      ? ` Default issue type: ${cfg.defaultIssueType}.`
+      : "";
+
     api.registerTool({
       name: "jira",
       label: "Jira",
       description:
         "Manage Jira issues. Actions: create (new issue), search (JQL query), update (modify fields), transition (change status). " +
-        "Use create to file bugs/tasks, search to find existing issues, update to modify fields, transition to change workflow status.",
+        "Use create to file bugs/tasks, search to find existing issues, update to modify fields, transition to change workflow status." +
+        projectHint +
+        issueTypeHint +
+        " Do NOT guess the projectKey — omit it to use the default.",
       parameters: JiraToolSchema,
       execute,
     } as AnyAgentTool);

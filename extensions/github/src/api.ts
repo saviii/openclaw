@@ -4,6 +4,8 @@ import type {
   GitHubBranch,
   GitHubSearchResult,
   GitHubUser,
+  GitHubContentItem,
+  GitHubFileContent,
 } from "./types.js";
 
 export class GitHubApiError extends Error {
@@ -155,6 +157,44 @@ export class GitHubClient {
   async listBranches(owner?: string, repo?: string, signal?: AbortSignal): Promise<GitHubBranch[]> {
     return this.request<GitHubBranch[]>(
       `${this.repoPath(owner, repo)}/branches?per_page=100`,
+      {},
+      signal,
+    );
+  }
+
+  async listContents(
+    path: string,
+    owner?: string,
+    repo?: string,
+    ref?: string,
+    signal?: AbortSignal,
+  ): Promise<GitHubContentItem[]> {
+    const encodedPath = path
+      .split("/")
+      .map((s) => encodeURIComponent(s))
+      .join("/");
+    const params = ref ? `?ref=${encodeURIComponent(ref)}` : "";
+    return this.request<GitHubContentItem[]>(
+      `${this.repoPath(owner, repo)}/contents/${encodedPath}${params}`,
+      {},
+      signal,
+    );
+  }
+
+  async getFileContent(
+    path: string,
+    owner?: string,
+    repo?: string,
+    ref?: string,
+    signal?: AbortSignal,
+  ): Promise<GitHubFileContent> {
+    const encodedPath = path
+      .split("/")
+      .map((s) => encodeURIComponent(s))
+      .join("/");
+    const params = ref ? `?ref=${encodeURIComponent(ref)}` : "";
+    return this.request<GitHubFileContent>(
+      `${this.repoPath(owner, repo)}/contents/${encodedPath}${params}`,
       {},
       signal,
     );

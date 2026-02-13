@@ -84,13 +84,20 @@ const plugin = {
       repo: cfg.repo,
     });
 
+    const repoHint = ` Default repository: ${cfg.owner}/${cfg.repo}.`;
+
     api.registerTool({
       name: "github",
       label: "GitHub",
       description:
-        "Access GitHub repository data. Actions: list_prs (open PRs), get_pr (PR details), " +
-        "list_issues (open issues), get_issue (issue details), search (find code/issues/PRs), " +
-        "list_branches (active branches). Use to check PR status, find issues, understand code context.",
+        "Access GitHub repository data." +
+        repoHint +
+        " When the user mentions GitHub, their repo, PRs, issues, or code — use this tool immediately without asking." +
+        " Do NOT ask the user for owner/repo — omit them to use the default." +
+        " Actions: list_prs, get_pr, list_issues, get_issue, search, list_branches, list_contents, get_file." +
+        " list_contents browses directories (path param, defaults to root). get_file reads a file's content (path required)." +
+        " To find a project plan: list_contents at root, look in likely dirs (docs/, .context/, plans/), then get_file to read it." +
+        " Always browse and read on your own before asking the user for file paths.",
       parameters: GitHubToolSchema,
       execute,
     } as AnyAgentTool);

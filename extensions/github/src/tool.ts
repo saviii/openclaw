@@ -9,6 +9,8 @@ const ACTIONS = [
   "get_issue",
   "search",
   "list_branches",
+  "list_contents",
+  "get_file",
 ] as const;
 
 type AgentToolResult = {
@@ -34,6 +36,15 @@ export const GitHubToolSchema = Type.Object(
       Type.String({ description: "Search type: issues, code, commits (default: issues)" }),
     ),
     maxResults: Type.Optional(Type.Number({ description: "Max results (default: 20)" })),
+    path: Type.Optional(
+      Type.String({
+        description:
+          'File or directory path (for list_contents / get_file). Use "" or omit for repo root.',
+      }),
+    ),
+    ref: Type.Optional(
+      Type.String({ description: "Git ref (branch/tag/sha) for list_contents / get_file" }),
+    ),
   },
   { additionalProperties: false },
 );
@@ -49,6 +60,8 @@ type ToolParams = {
   query?: string;
   searchType?: string;
   maxResults?: number;
+  path?: string;
+  ref?: string;
 };
 
 type DefaultConfig = {
@@ -236,6 +249,56 @@ export function createGitHubExecutor(client: GitHubClient, defaults: DefaultConf
             total: items.length,
             repository: `${owner}/${repo}`,
             branches: items,
+          });
+        }
+
+        case "list_contents": {
+          const dirPath = params.path ?? "";
+          const contents = await client.listContents(dirPath, owner, repo, params.ref, signal);
+
+          const items = contents.map((c) => ({
+            name: c.name,
+            path: c.path,
+            type: c.type,
+            size: c.size,
+            url: c.html_url,
+          }));
+
+          return json({
+            repository: `${owner}/${repo}`,
+            path: dirPath || "/",
+            total: items.length,
+            contents: items,
+          });
+        }
+
+        case "get_file": {
+          if (!params.path) {
+            throw new Error("path is required for get_file action");
+          }
+
+          const file = await client.getFileContent(params.path, owner, repo, params.ref, signal);
+
+          // Decode base64 content from GitHub API
+          let decoded: string;
+          try {
+            decoded = Buffer.from(file.content, "base64").toString("utf-8");
+          } catch {
+            decoded = "(binary file — cannot decode as text)";
+          }
+
+          // Truncate very large files to keep response manageable
+          const maxLen = 8000;
+          const truncated = decoded.length > maxLen;
+          const content = truncated ? decoded.slice(0, maxLen) + "\n\n... (truncated)" : decoded;
+
+          return json({
+            repository: `${owner}/${repo}`,
+            path: file.path,
+            size: file.size,
+            truncated,
+            content,
+            url: file.html_url,
           });
         }
 
