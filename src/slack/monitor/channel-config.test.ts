@@ -53,4 +53,28 @@ describe("resolveSlackChannelConfig", () => {
       matchSource: "direct",
     });
   });
+
+  it("passes skills array from channel config", () => {
+    const res = resolveSlackChannelConfig({
+      channelId: "C_BUGS",
+      channels: { C_BUGS: { enabled: true, requireMention: false, skills: ["bug-triage"] } },
+    });
+    expect(res).toMatchObject({ allowed: true, skills: ["bug-triage"], requireMention: false });
+  });
+
+  it("inherits skills from wildcard when no direct match", () => {
+    const res = resolveSlackChannelConfig({
+      channelId: "C_OTHER",
+      channels: { "*": { skills: ["bug-triage"], requireMention: true } },
+    });
+    expect(res).toMatchObject({ skills: ["bug-triage"], requireMention: true });
+  });
+
+  it("does not include skills when none configured", () => {
+    const res = resolveSlackChannelConfig({
+      channelId: "C1",
+      channels: { C1: { enabled: true } },
+    });
+    expect(res?.skills).toBeUndefined();
+  });
 });
