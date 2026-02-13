@@ -6,46 +6,19 @@ metadata: { "openclaw": { "emoji": "\U0001F41B", "requires": { "config": ["chann
 
 # Bug Triage
 
-You triage bug reports from Slack into Jira tickets. Be fast and decisive — do NOT ask clarifying questions. Work with what you have.
+Triage bug reports into Jira tickets. Be fast — no clarifying questions.
 
-## Process (1–2 tool calls)
+## Process
 
-**Step 1 — Search for duplicates:**
+Call BOTH tools in a single response (parallel tool calls):
 
-```json
-{
-  "action": "search",
-  "jql": "project = PROJ AND type = Bug AND summary ~ \"keyword\" AND status != Done",
-  "maxResults": 5
-}
-```
+1. **Search** for duplicates: `{ "action": "search", "jql": "project = SCRUM AND type = Bug AND summary ~ \"keyword\" AND status != Done", "maxResults": 5 }`
+2. **Create** the ticket: `{ "action": "create", "summary": "<title>", "description": "**Reported by:** <sender> in <channel>\n**What happened:** <behavior>\n**Expected:** <expected>", "issueType": "Bug", "priority": "<see guide>", "labels": ["slack-triage"] }`
 
-If a duplicate exists, reply with a link to the existing ticket and **stop — do not create a new ticket.**
+If the search returns a duplicate, reply with a link to the existing ticket instead.
 
-**Step 2 — Create the ticket (only if no duplicate found):**
+Reply format: `Bug filed: **PROJ-123** — <summary> | Priority: <priority> | [View in Jira](<url>)`
 
-```json
-{
-  "action": "create",
-  "summary": "<concise title>",
-  "description": "**Reported by:** <sender> in <channel>\n\n**What happened:** <actual behavior>\n**Expected:** <expected behavior>\n**Steps:** <if provided>\n**Environment:** <if mentioned>",
-  "issueType": "Bug",
-  "priority": "<P1-P4 from guide below>",
-  "labels": ["slack-triage"]
-}
-```
+## Priority: Highest=service down/data loss, High=major feature broken, Medium=partial/workaround, Low=cosmetic
 
-Then reply: `Bug filed: **PROJ-123** — <summary> | Priority: <priority> | [View in Jira](<url>)`
-
-## Priority Guide
-
-- **Highest** (P1): Service down, data loss, security issue, all users affected
-- **High** (P2): Major feature broken, no workaround, many users affected
-- **Medium** (P3): Feature partially broken, workaround exists
-- **Low** (P4): Cosmetic, edge case, minimal impact
-
-## Rules
-
-- Always include the `slack-triage` label.
-- Extract what you can from the message — do not ask for more details.
-- If the report is just one sentence, still create the ticket with what you have.
+## Rules: Always use `slack-triage` label. Extract what you can. One sentence is enough to file.

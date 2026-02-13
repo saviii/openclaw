@@ -89,7 +89,19 @@ skills/bug-triage/
 **Priority**: 🔴 Critical
 **Effort**: 1-2 weeks
 **Goal**: Non-technical users can sign up and get a working Kairo instance in < 5 minutes
-**Status**: ✅ Complete — Cloud control plane built, replaces original Lit/Vite dashboard approach
+**Status**: ✅ Complete — Cloud control plane built, locally verified, and optimized
+
+### Post-Build Verification & Optimization
+
+After M2 code completion, we ran the full stack locally and verified end-to-end:
+
+- [x] Gateway starts locally with Slack + Jira extensions loaded (`node kairo.mjs gateway`)
+- [x] Jira credentials verified against live API (`/rest/api/3/myself`)
+- [x] All 33 Jira unit tests pass (api, tool, triage-flow)
+- [x] Slack Socket Mode connects and receives messages
+- [x] Full Slack→Jira triage flow verified: bug posted in Slack → Jira ticket created (SCRUM-7) with correct priority, labels (`slack-triage`), and description
+- [x] **Fix: thread replies** — set `replyToMode: "all"` so bot replies as a thread on the original message instead of a new channel message
+- [x] **Optimization: faster triage** — rewrote SKILL.md to use parallel tool calls (search + create in single LLM turn), reducing from 3 LLM round-trips to 1-2
 
 ### Architecture Decision
 
