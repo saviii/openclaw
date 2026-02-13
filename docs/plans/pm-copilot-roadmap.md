@@ -25,7 +25,7 @@ This roadmap is designed for a **one-person company**. Each milestone is:
 **Priority**: 🔴 Critical - Do First
 **Effort**: 2-3 weeks
 **Goal**: Working bug triage from Slack to Jira
-**Status**: 🟢 Nearly Complete — Jira extension, bug-triage skill, extension cleanup, rename to Kairo, and README all done. Slack e2e test remaining.
+**Status**: ✅ Complete — Jira extension, bug-triage skill, extension cleanup, rename to Kairo, README, and Slack→Jira e2e tests all done.
 
 ### Tasks
 
@@ -39,7 +39,7 @@ This roadmap is designed for a **one-person company**. Each milestone is:
 - [x] Test end-to-end: Jira API verified (create, search, update, transition, comment)
 - [x] Add unit tests (28 tests: api.test.ts + tool.test.ts)
 - [x] Write basic README for self-hosting
-- [ ] Test end-to-end: Slack message → Jira ticket (requires Slack channel configured)
+- [x] Test end-to-end: Slack message → Jira ticket (channel-config skill routing, triage-flow, e2e integration tests)
 
 ### Done When
 
