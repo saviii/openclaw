@@ -7,7 +7,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "dev": "next dev",
+    "dev": "next dev --experimental-https",
     "start": "next start"
   },
   "dependencies": {
