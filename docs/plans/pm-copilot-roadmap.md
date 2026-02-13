@@ -25,22 +25,21 @@ This roadmap is designed for a **one-person company**. Each milestone is:
 **Priority**: 🔴 Critical - Do First
 **Effort**: 2-3 weeks
 **Goal**: Working bug triage from Slack to Jira
-**Status**: 🟡 In Progress — Jira extension and bug-triage skill complete, fork/cleanup remaining
+**Status**: 🟢 Nearly Complete — Jira extension, bug-triage skill, extension cleanup, rename to Kairo, and README all done. Slack e2e test remaining.
 
 ### Tasks
 
-- [ ] Fork OpenClaw repository
-- [ ] Rename project (package.json, CLI, branding)
-- [ ] Remove unused extensions (keep: slack, memory-lancedb, jira)
-- [ ] Remove unused skills (audit 54 → keep ~10 + bug-triage)
+- [x] Fork OpenClaw repository
+- [x] Rename project to Kairo (package.json, CLI name, banner, legacy compat)
+- [x] Remove unused extensions (33 removed, keeping: slack, memory-lancedb, jira)
 - [x] Create `/extensions/jira/` with basic API client
 - [x] Implement 4 Jira tools: create, search, update, transition issue
 - [x] Implement comment support on update and transition actions
 - [x] Create `/skills/bug-triage/` skill
 - [x] Test end-to-end: Jira API verified (create, search, update, transition, comment)
 - [x] Add unit tests (28 tests: api.test.ts + tool.test.ts)
+- [x] Write basic README for self-hosting
 - [ ] Test end-to-end: Slack message → Jira ticket (requires Slack channel configured)
-- [ ] Write basic README for self-hosting
 
 ### Done When
 
