@@ -63,15 +63,29 @@ export async function POST() {
     // 1. Create Railway service
     const serviceId = await createService(serviceName);
 
-    // 2. Set environment variables
+    // 2. Build Jira env vars based on auth mode
+    const jiraEnvVars: Record<string, string> =
+      jiraMeta.authMode === "oauth"
+        ? {
+            JIRA_CLOUD_ID: jiraMeta.cloudId,
+            JIRA_ACCESS_TOKEN: jiraCreds.accessToken,
+            JIRA_SITE_URL: jiraMeta.siteUrl,
+            JIRA_PROJECT_KEY: jiraMeta.projectKey,
+            JIRA_DEFAULT_ISSUE_TYPE: jiraMeta.defaultIssueType || "Bug",
+          }
+        : {
+            JIRA_BASE_URL: jiraMeta.siteUrl,
+            JIRA_EMAIL: jiraCreds.email,
+            JIRA_API_TOKEN: jiraCreds.apiToken,
+            JIRA_PROJECT_KEY: jiraMeta.projectKey,
+            JIRA_DEFAULT_ISSUE_TYPE: jiraMeta.defaultIssueType || "Bug",
+          };
+
+    // 3. Set environment variables
     await setServiceVariables(serviceId, {
       SLACK_BOT_TOKEN: slackCreds.botToken,
       SLACK_APP_TOKEN: process.env.SLACK_APP_TOKEN!,
-      JIRA_BASE_URL: jiraMeta.siteUrl,
-      JIRA_EMAIL: jiraCreds.email,
-      JIRA_API_TOKEN: jiraCreds.apiToken,
-      JIRA_PROJECT_KEY: jiraMeta.projectKey,
-      JIRA_DEFAULT_ISSUE_TYPE: jiraMeta.defaultIssueType || "Bug",
+      ...jiraEnvVars,
       GITHUB_TOKEN: githubCreds.token,
       GITHUB_OWNER: githubMeta.owner,
       GITHUB_REPO: githubMeta.repo,
@@ -82,10 +96,10 @@ export async function POST() {
       NODE_ENV: "production",
     });
 
-    // 3. Create domain
+    // 4. Create domain
     const domain = await createServiceDomain(serviceId);
 
-    // 4. Save instance
+    // 5. Save instance
     if (existing) {
       await db
         .update(instances)

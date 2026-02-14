@@ -1,10 +1,12 @@
 import type {
   CreateIssueRequest,
   CreateIssueResponse,
+  JiraAnyConfig,
   JiraIssue,
   JiraSearchResult,
   JiraTransition,
 } from "./types.js";
+import { isOAuthConfig } from "./types.js";
 
 /**
  * Convert plain text to Atlassian Document Format (ADF).
@@ -35,12 +37,20 @@ export class JiraApiError extends Error {
 export class JiraClient {
   private readonly baseUrl: string;
   private readonly authHeader: string;
+  private readonly browseBaseUrl: string;
 
-  constructor(config: { baseUrl: string; email: string; apiToken: string }) {
-    // Normalize base URL: remove trailing slash
-    this.baseUrl = config.baseUrl.replace(/\/+$/, "");
-    // Jira Cloud uses Basic Auth: base64(email:apiToken)
-    this.authHeader = `Basic ${Buffer.from(`${config.email}:${config.apiToken}`).toString("base64")}`;
+  constructor(config: JiraAnyConfig) {
+    if (isOAuthConfig(config)) {
+      // OAuth: route through Atlassian API gateway
+      this.baseUrl = `https://api.atlassian.com/ex/jira/${config.cloudId}`;
+      this.authHeader = `Bearer ${config.accessToken}`;
+      this.browseBaseUrl = config.siteUrl.replace(/\/+$/, "");
+    } else {
+      // Basic Auth: direct to Jira instance
+      this.baseUrl = config.baseUrl.replace(/\/+$/, "");
+      this.authHeader = `Basic ${Buffer.from(`${config.email}:${config.apiToken}`).toString("base64")}`;
+      this.browseBaseUrl = this.baseUrl;
+    }
   }
 
   private async request<T>(
@@ -178,6 +188,6 @@ export class JiraClient {
 
   /** Build the browser URL for an issue (for linking in Slack responses). */
   issueUrl(issueKey: string): string {
-    return `${this.baseUrl}/browse/${issueKey}`;
+    return `${this.browseBaseUrl}/browse/${issueKey}`;
   }
 }

@@ -1,5 +1,5 @@
 import type { AnyAgentTool, OpenClawPluginApi } from "openclaw/plugin-sdk";
-import type { JiraConfig } from "./src/types.js";
+import type { JiraAnyConfig, JiraConfig, JiraOAuthConfig } from "./src/types.js";
 import { JiraClient } from "./src/api.js";
 import { JiraToolSchema, createJiraExecutor } from "./src/tool.js";
 
@@ -20,10 +20,19 @@ function resolveString(pluginValue: unknown, envKey: string): string | undefined
   return process.env[envKey]?.trim() || undefined;
 }
 
-const ALLOWED_KEYS = ["baseUrl", "email", "apiToken", "projectKey", "defaultIssueType"];
+const ALLOWED_KEYS = [
+  "baseUrl",
+  "email",
+  "apiToken",
+  "cloudId",
+  "accessToken",
+  "siteUrl",
+  "projectKey",
+  "defaultIssueType",
+];
 
 export const jiraConfigSchema = {
-  parse(value: unknown): JiraConfig {
+  parse(value: unknown): JiraAnyConfig {
     const cfg = (
       value && typeof value === "object" && !Array.isArray(value) ? value : {}
     ) as Record<string, unknown>;
@@ -33,6 +42,21 @@ export const jiraConfigSchema = {
       throw new Error(`Jira config has unknown keys: ${unknown.join(", ")}`);
     }
 
+    // Try OAuth config first (cloudId + accessToken)
+    const cloudId = resolveString(cfg.cloudId, "JIRA_CLOUD_ID");
+    const accessToken = resolveString(cfg.accessToken, "JIRA_ACCESS_TOKEN");
+
+    if (cloudId && accessToken) {
+      return {
+        cloudId,
+        accessToken,
+        siteUrl: resolveString(cfg.siteUrl, "JIRA_SITE_URL") || "",
+        projectKey: resolveString(cfg.projectKey, "JIRA_PROJECT_KEY"),
+        defaultIssueType: resolveString(cfg.defaultIssueType, "JIRA_DEFAULT_ISSUE_TYPE"),
+      } satisfies JiraOAuthConfig;
+    }
+
+    // Fall through to Basic Auth
     const baseUrl = resolveString(cfg.baseUrl, "JIRA_BASE_URL");
     const email = resolveString(cfg.email, "JIRA_EMAIL");
     const apiToken = resolveString(cfg.apiToken, "JIRA_API_TOKEN");
@@ -53,7 +77,7 @@ export const jiraConfigSchema = {
       apiToken,
       projectKey: resolveString(cfg.projectKey, "JIRA_PROJECT_KEY"),
       defaultIssueType: resolveString(cfg.defaultIssueType, "JIRA_DEFAULT_ISSUE_TYPE"),
-    };
+    } satisfies JiraConfig;
   },
 
   uiHints: {

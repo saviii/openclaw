@@ -1,3 +1,4 @@
+/** Basic Auth config (API token + email) */
 export type JiraConfig = {
   baseUrl: string;
   email: string;
@@ -5,6 +6,21 @@ export type JiraConfig = {
   projectKey?: string;
   defaultIssueType?: string;
 };
+
+/** OAuth 2.0 (3LO) config */
+export type JiraOAuthConfig = {
+  cloudId: string;
+  accessToken: string;
+  siteUrl: string;
+  projectKey?: string;
+  defaultIssueType?: string;
+};
+
+export type JiraAnyConfig = JiraConfig | JiraOAuthConfig;
+
+export function isOAuthConfig(config: JiraAnyConfig): config is JiraOAuthConfig {
+  return "cloudId" in config && "accessToken" in config;
+}
 
 export type JiraIssueFields = {
   summary: string;

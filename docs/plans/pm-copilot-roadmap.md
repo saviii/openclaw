@@ -113,7 +113,7 @@ Instead of polishing the existing Lit/Vite UI (which still requires self-hosting
 - [x] Set up Clerk auth (sign-up, sign-in, Google OAuth)
 - [x] Set up Turso database + Drizzle ORM (users, integrations, instances tables)
 - [x] Build Slack OAuth flow (Connect Slack → bot token stored encrypted)
-- [x] Build Jira credential form + validation (tests API connection before saving)
+- [x] Build Jira OAuth flow (one-click connect, replaces manual credential form)
 - [x] Build Railway provisioning API (creates per-user container with env vars)
 - [x] Build 3-step onboarding wizard (Slack → Jira → Deploy)
 - [x] Build dashboard (instance status, integration cards, quick start guide)
@@ -137,7 +137,8 @@ kairo-cloud/                      # Next.js 15 control plane (33 files)
   │   ├── schema.ts               # 3 tables: users, integrations, instances
   │   ├── encryption.ts           # AES-256-GCM for token storage
   │   ├── railway.ts              # Railway GraphQL API client
-  │   └── slack-oauth.ts          # Slack OAuth URL + code exchange
+  │   ├── slack-oauth.ts          # Slack OAuth URL + code exchange
+  │   └── jira-oauth.ts           # Jira OAuth 2.0 (3LO) + token refresh
   ├── src/app/
   │   ├── page.tsx                # Landing page
   │   ├── onboarding/             # 3-step wizard (slack, jira, deploy)
