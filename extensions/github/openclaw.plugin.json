@@ -1,0 +1,12 @@
+{
+  "id": "github",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "token": { "type": "string" },
+      "owner": { "type": "string" },
+      "repo": { "type": "string" }
+    }
+  }
+}

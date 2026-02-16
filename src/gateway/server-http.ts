@@ -480,6 +480,13 @@ export function createGatewayHttpServer(opts: {
     }
 
     try {
+      // Health check endpoint for Railway/cloud health probes.
+      const url = new URL(req.url ?? "/", "http://localhost");
+      if (url.pathname === "/health" && req.method === "GET") {
+        sendJson(res, 200, { status: "ok" });
+        return;
+      }
+
       const configSnapshot = loadConfig();
       const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
       const requestPath = new URL(req.url ?? "/", "http://localhost").pathname;

@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.env
+.env.local
+drizzle/
+local.db
+next-env.d.ts
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+certificates

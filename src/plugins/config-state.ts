@@ -13,11 +13,7 @@ export type NormalizedPluginsConfig = {
   entries: Record<string, { enabled?: boolean; config?: unknown }>;
 };
 
-export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>([
-  "device-pair",
-  "phone-control",
-  "talk-voice",
-]);
+export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>([]);
 
 const normalizeList = (value: unknown): string[] => {
   if (!Array.isArray(value)) {
@@ -82,7 +78,10 @@ const hasExplicitMemorySlot = (plugins?: OpenClawConfig["plugins"]) =>
   Boolean(plugins?.slots && Object.prototype.hasOwnProperty.call(plugins.slots, "memory"));
 
 const hasExplicitMemoryEntry = (plugins?: OpenClawConfig["plugins"]) =>
-  Boolean(plugins?.entries && Object.prototype.hasOwnProperty.call(plugins.entries, "memory-core"));
+  Boolean(
+    plugins?.entries &&
+    Object.prototype.hasOwnProperty.call(plugins.entries, defaultSlotIdForKey("memory")),
+  );
 
 const hasExplicitPluginConfig = (plugins?: OpenClawConfig["plugins"]) => {
   if (!plugins) {

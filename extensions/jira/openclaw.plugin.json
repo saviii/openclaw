@@ -1,0 +1,14 @@
+{
+  "id": "jira",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "baseUrl": { "type": "string" },
+      "email": { "type": "string" },
+      "apiToken": { "type": "string" },
+      "projectKey": { "type": "string" },
+      "defaultIssueType": { "type": "string" }
+    }
+  }
+}
